@@ -1,4 +1,4 @@
-package com.dariawan;
+package com.dariawan.meetdash;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
