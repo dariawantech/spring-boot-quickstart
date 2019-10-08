@@ -13,8 +13,7 @@ import org.springframework.jdbc.core.namedparam.BeanPropertySqlParameterSource;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.core.namedparam.SqlParameterSource;
-import org.springframework.jdbc.support.GeneratedKeyHolder;
-import org.springframework.jdbc.support.KeyHolder;
+import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.stereotype.Repository;
 
 @Repository
@@ -22,33 +21,33 @@ public class UserDao extends BaseDao {
 
     private JdbcTemplate jdbcTemplate;
     private NamedParameterJdbcTemplate namedParameterJdbcTemplate;
+    private SimpleJdbcInsert jdbcInsertUser;
 
-    private static final String SQL_INSERT
-            = "insert into user (username, password, firstname, lastname, email, enabled) "
-            + "values (:username, :password, :firstName, :lastName, :email, :enabled)";
     private static final String SQL_UPDATE
-            = "update user set username=:username, password=:password, "
+            = "update d_user set username=:username, password=:password, "
             + "firstname=:firstname, lastname=:lastname, enabled=:enabled where id = :id";
-    private static final String SQL_DELETE = "delete from user where id = ?";
-    private static final String SQL_FIND_BY_ID = "select * from user where id = ?";
-    private static final String SQL_FIND_BY_USERNAME = "select * from user where username = ?";
-    private static final String SQL_FIND_ALL = "select * from user limit ?, ?";
-    private static final String SQL_COUNT_ALL = "select count(*) from user";
+    private static final String SQL_DELETE = "delete from d_user where id = ?";
+    private static final String SQL_FIND_BY_ID = "select * from d_user where id = ?";
+    private static final String SQL_FIND_BY_USERNAME = "select * from d_user where username = ?";
+    private static final String SQL_FIND_ALL = "select * from d_user limit ? offset ?";
+    private static final String SQL_COUNT_ALL = "select count(*) from d_user";
 
     @Autowired
     public void setDataSource(DataSource dataSource) {
         this.jdbcTemplate = new JdbcTemplate(dataSource);
         this.namedParameterJdbcTemplate = new NamedParameterJdbcTemplate(dataSource);
+        this.jdbcInsertUser = new SimpleJdbcInsert(dataSource)
+                .withTableName("d_user")
+                .usingGeneratedKeyColumns("id");
     }
 
     // User findByUsername(String username);
     public void save(User u) {
         if (u.getId() == null) {
             // create
-            SqlParameterSource namedParameters = new BeanPropertySqlParameterSource(u);
-            KeyHolder keyHolder = new GeneratedKeyHolder();
-            namedParameterJdbcTemplate.update(SQL_INSERT, namedParameters, keyHolder);
-            u.setId(keyHolder.getKey().intValue());
+            SqlParameterSource produkParameter = new BeanPropertySqlParameterSource(u);
+            Number newId = jdbcInsertUser.executeAndReturnKey(produkParameter);
+            u.setId(newId.intValue());
         } else {
             // update
             SqlParameterSource userParameter = new MapSqlParameterSource()
@@ -87,8 +86,7 @@ public class UserDao extends BaseDao {
 
     public List<User> findAll(int pageNumber, int rowPerPage) {
         return jdbcTemplate.query(SQL_FIND_ALL,
-                new ResultSetToUser(), getRowStart(pageNumber, rowPerPage),
-                rowPerPage);
+                new ResultSetToUser(), rowPerPage, getRowStart(pageNumber, rowPerPage));
     }
 
     public Long count() {
