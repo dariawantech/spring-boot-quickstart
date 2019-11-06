@@ -28,7 +28,7 @@ public class TodoRestController {
     private TodoService todoService;
     
     @GetMapping(value = "/api/todos", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<List<Todo>> now() {
+    public ResponseEntity<List<Todo>> findAll() {
         return ResponseEntity.ok(todoService.findAll());
     }
 
@@ -46,7 +46,7 @@ public class TodoRestController {
     public ResponseEntity<Todo> addTodo(@RequestBody Todo todo) throws URISyntaxException {
         try {
             Todo newTodo = todoService.save(todo);
-            return ResponseEntity.created(new URI("/rest/v1/books/" + newTodo.getTodoId()))
+            return ResponseEntity.created(new URI("/api/todos/" + newTodo.getTodoId()))
                     .body(todo);
         } catch (BadResourceException ex) {
             // log exception first, then return Bad Request (400)
