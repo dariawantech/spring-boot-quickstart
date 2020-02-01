@@ -1,5 +1,5 @@
 /**
- * Spring REST Examples v1 (https://www.dariawan.com)
+ * Spring Boot Quickstart - To Do List (https://www.dariawan.com/tutorials/spring/spring-boot-quick-start/)
  * Copyright (C) 2019 Dariawan <hello@dariawan.com>
  *
  * Creative Commons Attribution-ShareAlike 4.0 International License
