@@ -82,7 +82,8 @@
                         <email>hello@dariawan.com</email>
                     </properties>
                     <excludes>
-                        <exclude>.mvn/**</exclude>
+                        <exclude>mvnw.cmd</exclude>
+						<exclude>.mvn/**</exclude>
                         <exclude>.hg/**</exclude>
                         <exclude>.git/**</exclude>
                         <exclude>.gitignore/**</exclude>
